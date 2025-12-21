@@ -1,27 +1,14 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, File, UploadFile
 import whisper
-import tempfile
-import os
 
-app = Flask(__name__)
+app = FastAPI()
+
 model = whisper.load_model("base")
 
-@app.route("/speech", methods=["POST"])
-def speech():
-    audio = request.files['audio']
-    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-    audio.save(temp.name)
+@app.post("/stt")
+async def stt(file: UploadFile = File(...)):
+    with open("audio.wav", "wb") as f:
+        f.write(await file.read())
 
-    result = model.transcribe(temp.name)
-    text = result["text"]
-
-    os.remove(temp.name)
-    return jsonify({"text": text})
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
-@app.route("/")
-def home():
-    return "ESP32 Speech Server Running"
-
+    result = model.transcribe("audio.wav")
+    return {"text": result["text"]}
