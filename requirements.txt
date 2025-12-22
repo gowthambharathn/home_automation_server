@@ -3,4 +3,3 @@ uvicorn
 openai-whisper
 torch --index-url https://download.pytorch.org/whl/cpu
 numpy
-ffmpeg-python
